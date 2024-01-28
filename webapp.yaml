@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: mongodb
+        image: nanajanashia/k8s-demo-app:v1.0
+        ports:
+        - containerPort: 5500
+        env:
+        - name: USER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: USER_PWD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort
+  ports:
+  - port: 5500  # Reemplaza <insert-port-here> con el puerto que deseas exponer en el servicio
+    targetPort: 5500  # Reemplaza <insert-targetPort-here> con el puerto que tu aplicación está escuchando
+    nodePort: 30101  # Reemplaza <insert-nodePort-here> con el puerto que deseas exponer en el nodo
+  selector: 
+    app: webapp
+ 
+
+
+
+
+
+    
